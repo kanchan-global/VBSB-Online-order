@@ -292,10 +292,10 @@
                             </select>
                         </td>
                         <td>
-                            <input type="number" class="quantity-input" value="1" min="1" max="10" onchange="handleRowChange(this)">
-                            <div style="font-size: 12px; color: #666; margin-top: 2px;">Pack of 6</div>
+                            <input type="number" class="quantity-input" value="0" min="0" max="60" onchange="handleRowChange(this)">
+                            <div style="font-size: 12px; color: #666; margin-top: 2px;">Individual pieces</div>
                         </td>
-                        <td style="text-align: center; font-weight: bold; color: #4A148C;">$23</td>
+                        <td style="text-align: center; font-weight: bold; color: #4A148C;">$<span class="item-price">0</span></td>
                         <td style="text-align: center;">
                             <button class="delete-btn" onclick="deleteRow(this)" style="display: none;">−</button>
                         </td>
@@ -304,7 +304,14 @@
             </table>
 
             <div class="total-section">
+                <div style="margin-bottom: 10px;">
+                    <span style="font-size: 16px;">Total Pieces: <span id="totalPieces">0</span></span>
+                    <span style="margin-left: 20px; font-size: 16px;">Packs of 6: <span id="totalPacks">0</span></span>
+                </div>
                 <div class="total-text">Total: $<span id="totalAmount">0</span></div>
+                <div id="quantityWarning" style="color: #dc3545; font-size: 14px; margin-top: 10px; display: none;">
+                    ⚠️ Total quantity must be in multiples of 6
+                </div>
             </div>
         </div>
 
@@ -343,11 +350,37 @@
             SPREADSHEET_ID: '1NAXlVodzMmU6MN-QHNMMI4vy-q75l6u3EXbXqV2Rss4'
         };
 
-        // Set minimum date/time to Sep 30, 2025 3 PM (current year)
+        // Set minimum date/time to Sep 30, 2025 12:00 PM and restrict hours to 12PM-9PM
         function setMinDateTime() {
-            const minDate = new Date('2025-09-30T15:00');
+            const minDate = new Date('2025-09-30T12:00');
             const minDateString = minDate.toISOString().slice(0, 16);
             document.getElementById('pickupDateTime').min = minDateString;
+            
+            // Add event listener to validate time selection
+            document.getElementById('pickupDateTime').addEventListener('change', validatePickupTime);
+        }
+
+        // Validate pickup time is between 12 PM and 9 PM
+        function validatePickupTime() {
+            const pickupInput = document.getElementById('pickupDateTime');
+            const selectedDateTime = new Date(pickupInput.value);
+            
+            if (!pickupInput.value) return;
+            
+            const hours = selectedDateTime.getHours();
+            const minutes = selectedDateTime.getMinutes();
+            
+            // Check if time is between 12:00 PM (12) and 9:00 PM (21)
+            if (hours < 12 || hours > 21 || (hours === 21 && minutes > 0)) {
+                alert('Pickup time must be between 12:00 PM and 9:00 PM. Please select a different time.');
+                
+                // Reset to 12:00 PM on the same date
+                const dateOnly = pickupInput.value.split('T')[0];
+                pickupInput.value = `${dateOnly}T12:00`;
+                return false;
+            }
+            
+            return true;
         }
 
         // Handle row changes and auto-add new rows
@@ -356,9 +389,15 @@
             const flavourSelect = row.querySelector('.flavour-select');
             const quantityInput = row.querySelector('.quantity-input');
             const deleteBtn = row.querySelector('.delete-btn');
+            const itemPriceSpan = row.querySelector('.item-price');
+            
+            // Calculate price for this row
+            const quantity = parseInt(quantityInput.value) || 0;
+            const itemPrice = Math.floor(quantity / 6) * 23 + (quantity % 6) * (23/6);
+            itemPriceSpan.textContent = itemPrice.toFixed(2);
             
             // Show delete button if row has content
-            if (flavourSelect.value && quantityInput.value > 0) {
+            if (flavourSelect.value && quantity > 0) {
                 deleteBtn.style.display = 'inline-block';
                 
                 // Check if this is the last row and add a new one
@@ -391,10 +430,10 @@
                     </select>
                 </td>
                 <td>
-                    <input type="number" class="quantity-input" value="1" min="1" max="10" onchange="handleRowChange(this)">
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">Pack of 6</div>
+                    <input type="number" class="quantity-input" value="0" min="0" max="60" onchange="handleRowChange(this)">
+                    <div style="font-size: 12px; color: #666; margin-top: 2px;">Individual pieces</div>
                 </td>
-                <td style="text-align: center; font-weight: bold; color: #4A148C;">$23</td>
+                <td style="text-align: center; font-weight: bold; color: #4A148C;">$<span class="item-price">0</span></td>
                 <td style="text-align: center;">
                     <button class="delete-btn" onclick="deleteRow(this)" style="display: none;">−</button>
                 </td>
@@ -414,21 +453,43 @@
             }
         }
 
-        // Update total price
+        // Update total price and validate quantities
         function updateTotal() {
             const rows = document.querySelectorAll('.order-row');
-            let total = 0;
+            let totalPieces = 0;
+            let totalAmount = 0;
             
             rows.forEach(row => {
                 const flavourSelect = row.querySelector('.flavour-select');
                 const quantityInput = row.querySelector('.quantity-input');
                 
                 if (flavourSelect.value && quantityInput.value > 0) {
-                    total += parseInt(quantityInput.value) * 23;
+                    const quantity = parseInt(quantityInput.value);
+                    totalPieces += quantity;
+                    
+                    // Calculate price: full packs at $23, individual pieces at $23/6 each
+                    const fullPacks = Math.floor(quantity / 6);
+                    const individualPieces = quantity % 6;
+                    const itemTotal = fullPacks * 23 + individualPieces * (23/6);
+                    totalAmount += itemTotal;
                 }
             });
             
-            document.getElementById('totalAmount').textContent = total;
+            const totalPacks = Math.floor(totalPieces / 6);
+            const remainderPieces = totalPieces % 6;
+            
+            // Update display
+            document.getElementById('totalPieces').textContent = totalPieces;
+            document.getElementById('totalPacks').textContent = totalPacks + (remainderPieces > 0 ? ` + ${remainderPieces} pieces` : '');
+            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+            
+            // Show warning if not multiple of 6
+            const warningDiv = document.getElementById('quantityWarning');
+            if (totalPieces > 0 && totalPieces % 6 !== 0) {
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
         }
 
         // Submit order
@@ -436,22 +497,34 @@
             // Collect order data
             const orderItems = [];
             const rows = document.querySelectorAll('.order-row');
+            let totalPieces = 0;
             
             rows.forEach(row => {
                 const flavour = row.querySelector('.flavour-select').value;
-                const quantity = row.querySelector('.quantity-input').value;
+                const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
                 
                 if (flavour && quantity > 0) {
+                    totalPieces += quantity;
+                    const fullPacks = Math.floor(quantity / 6);
+                    const individualPieces = quantity % 6;
+                    const itemPrice = fullPacks * 23 + individualPieces * (23/6);
+                    
                     orderItems.push({
                         flavour: flavour,
-                        quantity: parseInt(quantity),
-                        price: parseInt(quantity) * 23
+                        quantity: quantity,
+                        price: itemPrice.toFixed(2)
                     });
                 }
             });
             
             if (orderItems.length === 0) {
                 alert('Please add at least one item to your order.');
+                return;
+            }
+            
+            // Check if total quantity is multiple of 6
+            if (totalPieces % 6 !== 0) {
+                alert('Total quantity must be in multiples of 6. Please adjust your order.');
                 return;
             }
             
@@ -466,10 +539,15 @@
             const email = emailInput ? emailInput.value : '';
             const pickupDateTime = pickupInput ? pickupInput.value : '';
             
-            console.log('Form data collected:', { name, phone, email, pickupDateTime, orderItems });
+            console.log('Form data collected:', { name, phone, email, pickupDateTime, orderItems, totalPieces });
             
             if (!name || !phone || !email || !pickupDateTime) {
                 alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Validate pickup time before submission
+            if (!validatePickupTime()) {
                 return;
             }
             
@@ -614,7 +692,7 @@
             successMessage += `Thank you ${customerName}!\n\n`;
             successMessage += `Order Details:\n`;
             orderItems.forEach(item => {
-                successMessage += `• ${item.flavour} - ${item.quantity} pack(s) - $${item.price}\n`;
+                successMessage += `• ${item.flavour} - ${item.quantity} pieces - ${item.price}\n`;
             });
             successMessage += `\nTotal: $${total}`;
             successMessage += `\n\n📍 Pickup Location: 57 Charles St W`;
@@ -648,10 +726,10 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" class="quantity-input" value="1" min="1" max="10" onchange="handleRowChange(this)">
-                        <div style="font-size: 12px; color: #666; margin-top: 2px;">Pack of 6</div>
+                        <input type="number" class="quantity-input" value="0" min="0" max="60" onchange="handleRowChange(this)">
+                        <div style="font-size: 12px; color: #666; margin-top: 2px;">Individual pieces</div>
                     </td>
-                    <td style="text-align: center; font-weight: bold; color: #4A148C;">$23</td>
+                    <td style="text-align: center; font-weight: bold; color: #4A148C;">$<span class="item-price">0</span></td>
                     <td style="text-align: center;">
                         <button class="delete-btn" onclick="deleteRow(this)" style="display: none;">−</button>
                     </td>

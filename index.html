@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brown Sugar Bakery - Macaron Order</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #DDA0DD 50%, #FFB6C1 100%);
+            min-height: 100vh;
+            color: #4A148C;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 10px 30px rgba(74, 20, 140, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #87CEEB 0%, #DDA0DD 30%, #FFB6C1 70%);
+            padding: 30px 20px;
+            text-align: center;
+            color: #4A148C;
+        }
+
+        .brand-name {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .brand-subtitle {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .brand-tagline {
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .pickup-info {
+            background: rgba(74, 20, 140, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .pickup-date {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .order-section {
+            padding: 30px 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #4A148C;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        .order-table th {
+            background: linear-gradient(135deg, #E6E6FA 0%, #DDA0DD 100%);
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: bold;
+            color: #4A148C;
+            border: 1px solid #DDA0DD;
+        }
+
+        .order-table th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .order-table th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .order-row {
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .order-row:hover {
+            background: #fafafa;
+        }
+
+        .order-row td {
+            padding: 15px 10px;
+            border: 1px solid #DDA0DD;
+            border-top: none;
+        }
+
+        .flavour-select, .quantity-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #DDA0DD;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            color: #4A148C;
+        }
+
+        .flavour-select:focus, .quantity-input:focus {
+            outline: none;
+            border-color: #8E24AA;
+            box-shadow: 0 0 5px rgba(142, 36, 170, 0.3);
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #E6E6FA 0%, #DDA0DD 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: right;
+            border: 2px solid #DDA0DD;
+        }
+
+        .total-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4A148C;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #F0F8FF 0%, #E6E6FA 100%);
+            padding: 30px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4A148C;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #DDA0DD;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #4A148C;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #8E24AA;
+            box-shadow: 0 0 10px rgba(142, 36, 170, 0.2);
+        }
+
+        .datetime-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #DDA0DD;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #4A148C;
+            background: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4A148C 0%, #8E24AA 50%, #BA68C8 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .order-table th,
+            .order-table td {
+                padding: 10px 5px;
+                font-size: 14px;
+            }
+
+            .brand-name {
+                font-size: 28px;
+            }
+
+            .brand-subtitle {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="brand-name">Brown Sugar</div>
+            <div class="brand-subtitle">Bakery</div>
+            <div class="brand-tagline">Rediscover Plant-Based Patisserie</div>
+            <div class="pickup-info">PICK-UP from 57 Charles St W</div>
+            <div class="pickup-date">Starting 30-Sep</div>
+        </div>
+
+        <!-- Order Section -->
+        <div class="order-section">
+            <div class="section-title">Your Order</div>
+            
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Flavour</th>
+                        <th style="width: 25%;">Quantity</th>
+                        <th style="width: 20%;">Price</th>
+                        <th style="width: 15%;"></th>
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                    <tr class="order-row">
+                        <td>
+                            <select class="flavour-select" onchange="handleRowChange(this)">
+                                <option value="">Select flavour...</option>
+                                <option value="Lemon">Lemon</option>
+                                <option value="Strawberry">Strawberry</option>
+                                <option value="Vanilla">Vanilla</option>
+                                <option value="Hazelnut">Hazelnut</option>
+                                <option value="Pumpkin Spice">Pumpkin Spice</option>
+                                <option value="Lavender">Lavender</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" class="quantity-input" value="1" min="1" max="10" onchange="handleRowChange(this)">
+                            <div style="font-size: 12px; color: #666; margin-top: 2px;">Pack of 6</div>
+                        </td>
+                        <td style="text-align: center; font-weight: bold; color: #4A148C;">$23</td>
+                        <td style="text-align: center;">
+                            <button class="delete-btn" onclick="deleteRow(this)" style="display: none;">−</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="total-section">
+                <div class="total-text">Total: $<span id="totalAmount">0</span></div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            <div class="section-title">Customer Information</div>
+            
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email Address *</label>
+                <input type="email" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Preferred Pick-up Date & Time *</label>
+                <input type="datetime-local" class="datetime-input" id="pickupDateTime" required>
+            </div>
+
+            <button class="submit-btn" onclick="submitOrder()">Place Order</button>
+        </div>
+    </div>
+
+    <script>
+        // Google Sheets Configuration
+        const GOOGLE_SHEETS_CONFIG = {
+            WEB_APP_URL: 'https://script.google.com/macros/s/AKfycby2zwwnmJfLIKDmGGMB2G6-Pw7nJqT0bhEgeZPmg2wuFuw8Hn1Og2UDgJHfhHIA100xuw/exec',
+            SPREADSHEET_ID: '1NAXlVodzMmU6MN-QHNMMI4vy-q75l6u3EXbXqV2Rss4'
+        };
+
+        // Set minimum date/time to Sep 30, 2025 3 PM (current year)
+        function setMinDateTime() {
+            const minDate = new Date('2025-09-30T15:00');
+            const minDateString = minDate.toISOString().slice(0, 16);
+            document.getElementById('pickupDateTime').min = minDateString;
+        }
+
+        // Handle row changes and auto-add new rows
+        function handleRowChange(element) {
+            const row = element.closest('.order-row');
+            const flavourSelect = row.querySelector('.flavour-select');
+            const quantityInput = row.querySelector('.quantity-input');
+            const deleteBtn = row.querySelector('.delete-btn');
+            
+            // Show delete button if row has content
+            if (flavourSelect.value && quantityInput.value > 0) {
+                deleteBtn.style.display = 'inline-block';
+                
+                // Check if this is the last row and add a new one
+                const tbody = document.getElementById('orderTableBody');
+                if (row === tbody.lastElementChild) {
+                    addNewRow();
+                }
+            } else {
+                deleteBtn.style.display = 'none';
+            }
+            
+            updateTotal();
+        }
+
+        // Add a new empty row
+        function addNewRow() {
+            const tbody = document.getElementById('orderTableBody');
+            const newRow = document.createElement('tr');
+            newRow.className = 'order-row';
+            newRow.innerHTML = `
+                <td>
+                    <select class="flavour-select" onchange="handleRowChange(this)">
+                        <option value="">Select flavour...</option>
+                        <option value="Lemon">Lemon</option>
+                        <option value="Strawberry">Strawberry</option>
+                        <option value="Vanilla">Vanilla</option>
+                        <option value="Hazelnut">Hazelnut</option>
+                        <option value="Pumpkin Spice">Pumpkin Spice</option>
+                        <option value="Lavender">Lavender</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="quantity-input" value="1" min="1" max="10" onchange="handleRowChange(this)">
+                    <div style="font-size: 12px; color: #666; margin-top: 2px;">Pack of 6</div>
+                </td>
+                <td style="text-align: center; font-weight: bold; color: #4A148C;">$23</td>
+                <td style="text-align: center;">
+                    <button class="delete-btn" onclick="deleteRow(this)" style="display: none;">−</button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        // Delete a row
+        function deleteRow(button) {
+            const row = button.closest('.order-row');
+            const tbody = document.getElementById('orderTableBody');
+            
+            // Don't delete if it's the only row
+            if (tbody.children.length > 1) {
+                row.remove();
+                updateTotal();
+            }
+        }
+
+        // Update total price
+        function updateTotal() {
+            const rows = document.querySelectorAll('.order-row');
+            let total = 0;
+            
+            rows.forEach(row => {
+                const flavourSelect = row.querySelector('.flavour-select');
+                const quantityInput = row.querySelector('.quantity-input');
+                
+                if (flavourSelect.value && quantityInput.value > 0) {
+                    total += parseInt(quantityInput.value) * 23;
+                }
+            });
+            
+            document.getElementById('totalAmount').textContent = total;
+        }
+
+        // Submit order
+        function submitOrder() {
+            // Collect order data
+            const orderItems = [];
+            const rows = document.querySelectorAll('.order-row');
+            
+            rows.forEach(row => {
+                const flavour = row.querySelector('.flavour-select').value;
+                const quantity = row.querySelector('.quantity-input').value;
+                
+                if (flavour && quantity > 0) {
+                    orderItems.push({
+                        flavour: flavour,
+                        quantity: parseInt(quantity),
+                        price: parseInt(quantity) * 23
+                    });
+                }
+            });
+            
+            if (orderItems.length === 0) {
+                alert('Please add at least one item to your order.');
+                return;
+            }
+            
+            // Get customer info with more specific selectors
+            const nameInput = document.querySelector('input[type="text"]');
+            const phoneInput = document.querySelector('input[type="tel"]');
+            const emailInput = document.querySelector('input[type="email"]');
+            const pickupInput = document.getElementById('pickupDateTime');
+            
+            const name = nameInput ? nameInput.value : '';
+            const phone = phoneInput ? phoneInput.value : '';
+            const email = emailInput ? emailInput.value : '';
+            const pickupDateTime = pickupInput ? pickupInput.value : '';
+            
+            console.log('Form data collected:', { name, phone, email, pickupDateTime, orderItems });
+            
+            if (!name || !phone || !email || !pickupDateTime) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Write to Google Sheets
+            writeToGoogleSheets(orderItems, name, phone, email, pickupDateTime);
+        }
+
+        // Write order to Google Sheets
+        async function writeToGoogleSheets(orderItems, name, phone, email, pickupDateTime) {
+            try {
+                const total = document.getElementById('totalAmount').textContent;
+                
+                // Show loading state
+                const submitBtn = document.querySelector('.submit-btn');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Submitting Order...';
+                submitBtn.disabled = true;
+
+                // Format order items for Google Sheets
+                const orderItemsText = orderItems.map(item => 
+                    `${item.flavour} (${item.quantity} packs) - ${item.price}`
+                ).join('; ');
+
+                // Prepare simplified data for Google Sheets
+                const formData = new FormData();
+                formData.append('timestamp', new Date().toISOString());
+                formData.append('orderDate', new Date().toLocaleDateString());
+                formData.append('customerName', name);
+                formData.append('customerPhone', phone);
+                formData.append('customerEmail', email);
+                formData.append('pickupDateTime', new Date(pickupDateTime).toLocaleString());
+                formData.append('orderItems', orderItemsText);
+                formData.append('totalAmount', total);
+                formData.append('status', 'New Order');
+
+                // Submit to Google Sheets using FormData
+                await submitToGoogleSheets(formData);
+                
+                // Show success message
+                showOrderSuccess(orderItems, total, name);
+                
+                // Reset form
+                resetForm();
+                
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('There was an error submitting your order. Please try again or contact us directly.');
+            } finally {
+                // Restore button state
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.textContent = 'Place Order';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Actual Google Sheets API call
+        async function submitToGoogleSheets(params) {
+            try {
+                console.log('Received params type:', typeof params);
+                console.log('Received params:', params);
+                
+                // If params is a FormData object, convert it to a regular object
+                let paramObj = {};
+                if (params instanceof FormData) {
+                    console.log('Converting FormData to object...');
+                    for (let [key, value] of params.entries()) {
+                        paramObj[key] = value;
+                        console.log(`FormData entry: ${key} = ${value}`);
+                    }
+                } else {
+                    paramObj = params;
+                }
+                
+                console.log('Final param object:', paramObj);
+                
+                // Build URL parameters manually
+                const urlParams = Object.keys(paramObj)
+                    .map(key => {
+                        const value = paramObj[key];
+                        console.log(`Adding param: ${key} = ${value}`);
+                        return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+                    })
+                    .join('&');
+                
+                console.log('URL params string:', urlParams);
+                
+                const url = `${GOOGLE_SHEETS_CONFIG.WEB_APP_URL}?${urlParams}`;
+                console.log('Final URL:', url);
+                
+                return new Promise((resolve, reject) => {
+                    // Use window.open() to make the request in a popup that auto-closes
+                    const popup = window.open(url, '_blank', 'width=1,height=1,left=0,top=0');
+                    
+                    if (popup) {
+                        console.log('Request sent via popup window');
+                        
+                        // Close the popup after a short delay
+                        setTimeout(() => {
+                            try {
+                                popup.close();
+                                console.log('Popup closed, request completed');
+                            } catch (e) {
+                                console.log('Popup already closed or blocked');
+                            }
+                            resolve({ status: 'success' });
+                        }, 2000);
+                    } else {
+                        // Popup blocked, fallback to iframe
+                        console.log('Popup blocked, falling back to iframe method');
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.style.width = '1px';
+                        iframe.style.height = '1px';
+                        
+                        iframe.onload = () => {
+                            console.log('Iframe method completed');
+                            document.body.removeChild(iframe);
+                            resolve({ status: 'success' });
+                        };
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(iframe)) {
+                                document.body.removeChild(iframe);
+                            }
+                            resolve({ status: 'success' });
+                        }, 3000);
+                        
+                        document.body.appendChild(iframe);
+                        iframe.src = url;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Google Sheets submission error:', error);
+                throw error;
+            }
+        }
+
+        // Show order success message
+        function showOrderSuccess(orderItems, total, customerName) {
+            let successMessage = `🎉 Order Submitted Successfully!\n\n`;
+            successMessage += `Thank you ${customerName}!\n\n`;
+            successMessage += `Order Details:\n`;
+            orderItems.forEach(item => {
+                successMessage += `• ${item.flavour} - ${item.quantity} pack(s) - $${item.price}\n`;
+            });
+            successMessage += `\nTotal: $${total}`;
+            successMessage += `\n\n📍 Pickup Location: 57 Charles St W`;
+            successMessage += `\n📞 We'll contact you soon to confirm your pickup time!`;
+            
+            alert(successMessage);
+        }
+
+        // Reset form after successful submission
+        function resetForm() {
+            // Reset all form fields
+            document.querySelectorAll('input').forEach(input => {
+                if (input.type !== 'datetime-local') {
+                    input.value = '';
+                }
+            });
+            
+            // Reset order table to single empty row
+            const tbody = document.getElementById('orderTableBody');
+            tbody.innerHTML = `
+                <tr class="order-row">
+                    <td>
+                        <select class="flavour-select" onchange="handleRowChange(this)">
+                            <option value="">Select flavour...</option>
+                            <option value="Lemon">Lemon</option>
+                            <option value="Strawberry">Strawberry</option>
+                            <option value="Vanilla">Vanilla</option>
+                            <option value="Hazelnut">Hazelnut</option>
+                            <option value="Pumpkin Spice">Pumpkin Spice</option>
+                            <option value="Lavender">Lavender</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="quantity-input" value="1" min="1" max="10" onchange="handleRowChange(this)">
+                        <div style="font-size: 12px; color: #666; margin-top: 2px;">Pack of 6</div>
+                    </td>
+                    <td style="text-align: center; font-weight: bold; color: #4A148C;">$23</td>
+                    <td style="text-align: center;">
+                        <button class="delete-btn" onclick="deleteRow(this)" style="display: none;">−</button>
+                    </td>
+                </tr>
+            `;
+            
+            updateTotal();
+        }
+
+        // Initialize the form
+        setMinDateTime();
+        updateTotal();
+    </script>
+</body>
+</html>

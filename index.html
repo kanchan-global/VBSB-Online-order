@@ -313,6 +313,7 @@
                                 <option value="Hazelnut">Hazelnut</option>
                                 <option value="Pumpkin Spice">Pumpkin Spice</option>
                                 <option value="Lavender">Lavender</option>
+                                <option value="Ube">Ube</option>
                             </select>
                         </td>
                         <td>
@@ -375,38 +376,61 @@
         };
 
         // Set minimum date/time to Sep 30, 2025 12:00 PM and restrict hours to 12PM-9PM
-        function setMinDateTime() {
-            const minDate = new Date('2025-09-30T12:00');
-            const minDateString = minDate.toISOString().slice(0, 16);
-            document.getElementById('pickupDateTime').min = minDateString;
-            
-            // Add event listener to validate time selection
-            document.getElementById('pickupDateTime').addEventListener('change', validatePickupTime);
-        }
+       function setMinDateTime() {
+    const now = new Date();
+    const minDate = new Date('2025-09-30T12:00');
+    
+    // Use whichever is later: today or Sep 30, 2025
+    const actualMin = now > minDate ? now : minDate;
+    
+    // Round up to next hour if current time is past
+    if (actualMin.getHours() >= 21 || (actualMin.getHours() === 20 && actualMin.getMinutes() > 0)) {
+        // If it's past 8 PM, set to tomorrow at 12 PM
+        actualMin.setDate(actualMin.getDate() + 1);
+        actualMin.setHours(12, 0, 0, 0);
+    } else if (actualMin.getHours() < 12) {
+        // If before noon, set to today at 12 PM
+        actualMin.setHours(12, 0, 0, 0);
+    } else {
+        // Round up to next hour
+        actualMin.setHours(actualMin.getHours() + 1, 0, 0, 0);
+    }
+    
+    const minDateString = actualMin.toISOString().slice(0, 16);
+    document.getElementById('pickupDateTime').min = minDateString;
+    
+    document.getElementById('pickupDateTime').addEventListener('change', validatePickupTime);
+}
 
         // Validate pickup time is between 12 PM and 9 PM
         function validatePickupTime() {
-            const pickupInput = document.getElementById('pickupDateTime');
-            const selectedDateTime = new Date(pickupInput.value);
-            
-            if (!pickupInput.value) return;
-            
-            const hours = selectedDateTime.getHours();
-            const minutes = selectedDateTime.getMinutes();
-            
-            // Check if time is between 12:00 PM (12) and 9:00 PM (21)
-            if (hours < 12 || hours > 21 || (hours === 21 && minutes > 0)) {
-                alert('Pickup time must be between 12:00 PM and 9:00 PM. Please select a different time.');
-                
-                // Reset to 12:00 PM on the same date
-                const dateOnly = pickupInput.value.split('T')[0];
-                pickupInput.value = `${dateOnly}T12:00`;
-                return false;
-            }
-            
-            return true;
-        }
-
+    const pickupInput = document.getElementById('pickupDateTime');
+    const selectedDateTime = new Date(pickupInput.value);
+    const now = new Date();
+    
+    if (!pickupInput.value) return false;
+    
+    // Check if selected time is in the past
+    if (selectedDateTime < now) {
+        alert('Pickup time cannot be in the past. Please select a future date and time.');
+        pickupInput.value = '';
+        return false;
+    }
+    
+    const hours = selectedDateTime.getHours();
+    const minutes = selectedDateTime.getMinutes();
+    
+    // Check if time is between 12:00 PM and 9:00 PM
+    if (hours < 12 || hours > 21 || (hours === 21 && minutes > 0)) {
+        alert('Pickup time must be between 12:00 PM and 9:00 PM. Please select a different time.');
+        
+        const dateOnly = pickupInput.value.split('T')[0];
+        pickupInput.value = `${dateOnly}T12:00`;
+        return false;
+    }
+    
+    return true;
+}
         // Handle row changes and auto-add new rows
         function handleRowChange(element) {
             const row = element.closest('.order-row');
@@ -451,6 +475,7 @@
                         <option value="Hazelnut">Hazelnut</option>
                         <option value="Pumpkin Spice">Pumpkin Spice</option>
                         <option value="Lavender">Lavender</option>
+                        <option value="Ube">Ube</option>
                     </select>
                 </td>
                 <td>
@@ -747,6 +772,7 @@
                             <option value="Hazelnut">Hazelnut</option>
                             <option value="Pumpkin Spice">Pumpkin Spice</option>
                             <option value="Lavender">Lavender</option>
+                            <option value="Ube">Ube</option>
                         </select>
                     </td>
                     <td>

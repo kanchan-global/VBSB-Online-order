@@ -31,7 +31,7 @@
             color: #4A148C;
         }
         
-        .brand-name { font-size: 36px; font-weight: bold; margin-bottom: 8px; }
+        .brand-name { font-size: 36px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; }
         .brand-subtitle { font-size: 24px; font-weight: bold; margin-bottom: 15px; }
         .brand-tagline { font-size: 16px; margin-bottom: 20px; font-style: italic; }
         
@@ -71,7 +71,17 @@
         .order-row:hover { background: #fafafa; }
         .order-row td { padding: 15px 10px; border: 1px solid #DDA0DD; border-top: none; }
         
-        .flavour-select, .quantity-input, .form-input {
+        .flavour-select, .quantity-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #DDA0DD;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            color: #4A148C;
+        }
+        
+        .form-input {
             width: 100%;
             padding: 12px;
             border: 2px solid #DDA0DD;
@@ -105,30 +115,3 @@
         .total-text { font-size: 20px; font-weight: bold; color: #4A148C; }
         .footer { background: linear-gradient(135deg, #F0F8FF 0%, #E6E6FA 100%); }
         .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #4A148C; }
-        
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #4A148C 0%, #8E24AA 50%, #BA68C8 100%);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 20px;
-        }
-        
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4); }
-        .quantity-warning { color: #dc3545; font-size: 14px; margin-top: 10px; display: none; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="brand-name">Brown Sugar</div>
-            <div class="brand-subtitle">Bakery</div>
-            <d

@@ -542,116 +542,118 @@
         }
 
         // Submit order
-        function submitOrder() {
-            // Collect order data
-            const orderItems = [];
-            const rows = document.querySelectorAll('.order-row');
-            let totalPieces = 0;
+      function submitOrder() {
+    // Collect order data
+    const orderItems = [];
+    const rows = document.querySelectorAll('.order-row');
+    let totalPieces = 0;
+    
+    rows.forEach(row => {
+        const flavour = row.querySelector('.flavour-select').value;
+        const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
+        
+        if (flavour && quantity > 0) {
+            totalPieces += quantity;
+            const fullPacks = Math.floor(quantity / 6);
+            const individualPieces = quantity % 6;
+            const itemPrice = fullPacks * 23 + individualPieces * (23/6);
             
-            rows.forEach(row => {
-                const flavour = row.querySelector('.flavour-select').value;
-                const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
-                
-                if (flavour && quantity > 0) {
-                    totalPieces += quantity;
-                    const fullPacks = Math.floor(quantity / 6);
-                    const individualPieces = quantity % 6;
-                    const itemPrice = fullPacks * 23 + individualPieces * (23/6);
-                    
-                    orderItems.push({
-                        flavour: flavour,
-                        quantity: quantity,
-                        price: itemPrice.toFixed(2)
-                    });
-                }
+            orderItems.push({
+                flavour: flavour,
+                quantity: quantity,
+                price: itemPrice.toFixed(2)
             });
-            
-            if (orderItems.length === 0) {
-                alert('Please add at least one item to your order.');
-                return;
-            }
-            
-            // Check if total quantity is multiple of 6
-            if (totalPieces % 6 !== 0) {
-                alert('Total quantity must be in multiples of 6. Please adjust your order.');
-                return;
-            }
-            
-            // Get customer info with more specific selectors
-            const nameInput = document.querySelector('input[type="text"]');
-            const phoneInput = document.querySelector('input[type="tel"]');
-            const emailInput = document.querySelector('input[type="email"]');
-            const pickupInput = document.getElementById('pickupDateTime');
-            
-            const name = nameInput ? nameInput.value : '';
-            const phone = phoneInput ? phoneInput.value : '';
-            const email = emailInput ? emailInput.value : '';
-            const pickupDateTime = pickupInput ? pickupInput.value : '';
-            
-            console.log('Form data collected:', { name, phone, email, pickupDateTime, orderItems, totalPieces });
-            
-            if (!name || !phone || !email || !pickupDateTime) {
-                alert('Please fill in all required fields.');
-                return;
-            }
-            
-            // Validate pickup time before submission
-            if (!validatePickupTime()) {
-                return;
-            }
-            
-            // Write to Google Sheets
-            writeToGoogleSheets(orderItems, name, phone, email, pickupDateTime);
         }
+    });
+    
+    if (orderItems.length === 0) {
+        alert('Please add at least one item to your order.');
+        return;
+    }
+    
+    // Check if total quantity is multiple of 6
+    if (totalPieces % 6 !== 0) {
+        alert('Total quantity must be in multiples of 6. Please adjust your order.');
+        return;
+    }
+    
+    // Get customer info - updated to include Instagram
+    const nameInput = document.querySelector('input[type="text"]');
+    const phoneInput = document.querySelector('input[type="tel"]');
+    const emailInput = document.querySelector('input[type="email"]');
+    const instagramInput = document.getElementById('customerInstagram');
+    const pickupInput = document.getElementById('pickupDateTime');
+    
+    const name = nameInput ? nameInput.value : '';
+    const phone = phoneInput ? phoneInput.value : '';
+    const email = emailInput ? emailInput.value : '';
+    const instagram = instagramInput ? instagramInput.value : '';
+    const pickupDateTime = pickupInput ? pickupInput.value : '';
+    
+    console.log('Form data collected:', { name, phone, email, instagram, pickupDateTime, orderItems, totalPieces });
+    
+    if (!name || !phone || !email || !pickupDateTime) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // Validate pickup time before submission
+    if (!validatePickupTime()) {
+        return;
+    }
+    
+    // Write to Google Sheets - now includes instagram parameter
+    writeToGoogleSheets(orderItems, name, phone, email, instagram, pickupDateTime);
+}
 
         // Write order to Google Sheets
-        async function writeToGoogleSheets(orderItems, name, phone, email, pickupDateTime) {
-            try {
-                const total = document.getElementById('totalAmount').textContent;
-                
-                // Show loading state
-                const submitBtn = document.querySelector('.submit-btn');
-                const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Submitting Order...';
-                submitBtn.disabled = true;
-
-                // Format order items for Google Sheets
-                const orderItemsText = orderItems.map(item => 
-                    `${item.flavour} (${item.quantity} packs) - ${item.price}`
-                ).join('; ');
-
-                // Prepare simplified data for Google Sheets
-                const formData = new FormData();
-                formData.append('timestamp', new Date().toISOString());
-                formData.append('orderDate', new Date().toLocaleDateString());
-                formData.append('customerName', name);
-                formData.append('customerPhone', phone);
-                formData.append('customerEmail', email);
-                formData.append('pickupDateTime', new Date(pickupDateTime).toLocaleString());
-                formData.append('orderItems', orderItemsText);
-                formData.append('totalAmount', total);
-                formData.append('status', 'New Order');
-
-                // Submit to Google Sheets using FormData
-                await submitToGoogleSheets(formData);
-                
-                // Show success message
-                showOrderSuccess(orderItems, total, name);
-                
-                // Reset form
-                resetForm();
-                
-            } catch (error) {
-                console.error('Error submitting order:', error);
-                alert('There was an error submitting your order. Please try again or contact us directly.');
-            } finally {
-                // Restore button state
-                const submitBtn = document.querySelector('.submit-btn');
-                submitBtn.textContent = 'Place Order';
-                submitBtn.disabled = false;
-            }
-        }
-
+        async function writeToGoogleSheets(orderItems, name, phone, email, instagram, pickupDateTime) {
+    try {
+        const total = document.getElementById('totalAmount').textContent;
+        
+        // Show loading state
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting Order...';
+        submitBtn.disabled = true;
+        
+        // Format order items for Google Sheets
+        const orderItemsText = orderItems.map(item => 
+            `${item.flavour} (${item.quantity} pieces) - $${item.price}`
+        ).join('; ');
+        
+        // Prepare simplified data for Google Sheets
+        const formData = new FormData();
+        formData.append('timestamp', new Date().toISOString());
+        formData.append('orderDate', new Date().toLocaleDateString());
+        formData.append('customerName', name);
+        formData.append('customerPhone', phone);
+        formData.append('customerEmail', email);
+        formData.append('customerInstagram', instagram || 'N/A');
+        formData.append('pickupDateTime', new Date(pickupDateTime).toLocaleString());
+        formData.append('orderItems', orderItemsText);
+        formData.append('totalAmount', total);
+        formData.append('status', 'New Order');
+        
+        // Submit to Google Sheets using FormData
+        await submitToGoogleSheets(formData);
+        
+        // Show success message
+        showOrderSuccess(orderItems, total, name);
+        
+        // Reset form
+        resetForm();
+        
+    } catch (error) {
+        console.error('Error submitting order:', error);
+        alert('There was an error submitting your order. Please try again or contact us directly.');
+    } finally {
+        // Restore button state
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.textContent = 'Place Order';
+        submitBtn.disabled = false;
+    }
+}
         // Actual Google Sheets API call
         async function submitToGoogleSheets(params) {
             try {
